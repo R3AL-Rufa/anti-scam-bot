@@ -213,6 +213,7 @@ client.once('clientReady', () => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
 // THIS ALLOWS ME TO DEPLOY ON RENDER AS WEBSITE
 const http = require('http');
 http.createServer((req, res) => {

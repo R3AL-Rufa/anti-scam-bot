@@ -213,3 +213,11 @@ client.once('clientReady', () => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+// THIS ALLOWS ME TO DEPLOY ON RENDER AS WEBSITE
+const http = require('http');
+http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end('Bot is alive!');
+}).listen(process.env.PORT || 3000);
+
+console.log('HTTP server running for Render');

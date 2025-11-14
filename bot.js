@@ -1,4 +1,4 @@
-// bot.js - FULL ANTI-SCAM BOT (NO TIMEOUT)
+// bot.js - ANTI-SCAMB TEST BOT (RENDER READY)
 require('dotenv').config();
 const { Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField, MessageFlagsBitField } = require('discord.js');
 
@@ -10,13 +10,11 @@ const client = new Client({
   ]
 });
 
-// === CONFIG ===
-const LOG_CHANNEL_ID = '1024684293697585173'; // #url-logs-grok
-
-// === SAFE ROLE IDs ===
+// === CONFIG (UPDATE THESE FOR YOUR TEST SERVER) ===
+const LOG_CHANNEL_ID = '1024684293697585173'; // e.g., 1234567890
 const SAFE_ROLE_IDS = [
-  '1024184101340717157', // Admin Rufa
-  '1024303409995710494', // Moderator
+  '1024184101340717157',
+  '1024303409995710494',
 ];
 
 // === Normalize text ===
@@ -179,16 +177,16 @@ client.on('messageCreate', async (message) => {
 
 client.once('clientReady', () => {
   console.log(`Bot is ONLINE as ${client.user.tag}`);
-  client.user.setActivity('Deleting scams', { type: 'WATCHING' });
+  client.user.setActivity('Testing anti-scam', { type: 'WATCHING' });
 });
 
 client.login(process.env.DISCORD_TOKEN);
 
-// THIS ALLOWS ME TO DEPLOY ON RENDER AS WEBSITE
+// === RENDER HTTP SERVER (KEEPS BOT ALIVE) ===
 const http = require('http');
 http.createServer((req, res) => {
   res.writeHead(200);
-  res.end('Bot is alive!');
+  res.end('Anti-Scam Test Bot is alive!');
 }).listen(process.env.PORT || 3000);
 
 console.log('HTTP server running for Render');

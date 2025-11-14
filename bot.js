@@ -111,44 +111,20 @@ async function isScam(content) {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
-  // === GET ORIGINAL MESSAGE ===
-  let originalMessage = null;
-  if (message.reference?.messageId) {
-    try {
-      originalMessage = await message.channel.messages.fetch(message.reference.messageId);
-    } catch (err) {
-      // Ignore
-    }
-  }
-
-  const currentContent = message.content;
-  const originalContent = originalMessage?.content || '';
-  const contentToCheck = currentContent + originalContent;
-
   // === SKIP SAFE USERS ===
   if (message.member?.permissions.has(PermissionsBitField.Flags.Administrator)) return;
   if (message.member?.permissions.has(PermissionsBitField.Flags.ModerateMembers)) return;
   if (message.member?.permissions.has(PermissionsBitField.Flags.ManageMessages)) return;
   if (message.member?.roles.cache.some(r => SAFE_ROLE_IDS.includes(r.id))) return;
 
-  const result = await isScam(contentToCheck);
+  const result = await isScam(message.content);  // ← ONLY checks current message
   if (!result.scam) return;
 
   try {
-    // === DELETE CURRENT MESSAGE ===
     if (message.deletable) {
       await message.delete();
     }
 
-    // === DELETE ORIGINAL MESSAGE ===
-    if (originalMessage && originalMessage.deletable) {
-      const originalCheck = await isScam(originalMessage.content);
-      if (originalCheck.scam) {
-        await originalMessage.delete();
-      }
-    }
-
-    // === LOGGING ===
     const logChannel = message.guild.channels.cache.get(LOG_CHANNEL_ID);
     if (logChannel) {
       const botPerms = logChannel.permissionsFor(client.user);
@@ -160,16 +136,12 @@ client.on('messageCreate', async (message) => {
             { name: 'User', value: `${message.author}`, inline: true },
             { name: 'Channel', value: `${message.channel}`, inline: true },
             { name: 'Reason', value: result.reason, inline: false },
-            { name: 'Current Content', value: '```' + currentContent.substring(0, 400) + '```', inline: false },
-            { name: 'Original Content', value: originalContent ? '```' + originalContent.substring(0, 400) + '```' : 'None', inline: false },
-            { name: 'Forwarded?', value: originalMessage ? 'Yes' : 'No', inline: true }
+            { name: 'Content', value: '```' + message.content.substring(0, 400) + '```', inline: false }
           )
           .setTimestamp();
-
         logChannel.send({ embeds: [embed] }).catch(() => {});
       }
     }
-
   } catch (err) {
     console.log('Action failed:', err.message);
   }

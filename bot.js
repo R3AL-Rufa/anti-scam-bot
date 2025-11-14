@@ -113,36 +113,6 @@ async function isScam(content) {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
-  // === DELETE ALL FORWARDED MESSAGES ===
-  const isCrossposted = message.flags.has(MessageFlagsBitField.Flags.Crossposted);
-  const isReplyOrThread = message.reference?.messageId;
-
-  if (isCrossposted || isReplyOrThread) {
-    try {
-      await message.delete();
-      console.log(`Deleted forwarded message from ${message.author.tag}`);
-
-      const logChannel = message.guild.channels.cache.get(LOG_CHANNEL_ID);
-      if (logChannel && logChannel.permissionsFor(client.user)?.has('SendMessages')) {
-        logChannel.send({
-          embeds: [new EmbedBuilder()
-            .setTitle('FORWARDED MESSAGE DELETED')
-            .setColor(0x00ff00)
-            .addFields(
-              { name: 'User', value: `${message.author}`, inline: true },
-              { name: 'Channel', value: `${message.channel}`, inline: true },
-              { name: 'Content', value: '```' + message.content.substring(0, 900) + '```' }
-            )
-            .setTimestamp()
-          ]
-        }).catch(() => {});
-      }
-    } catch (err) {
-      console.log('Failed to delete forwarded message:', err.message);
-    }
-    return;
-  }
-
   // === GET ORIGINAL MESSAGE ===
   let originalMessage = null;
   if (message.reference?.messageId) {
